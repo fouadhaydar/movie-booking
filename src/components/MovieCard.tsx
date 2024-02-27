@@ -1,47 +1,161 @@
-import React, { FC } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { PressableStyeld, StyeldText, StyledView } from "../StyledComponent";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../Navigations/NavigationType";
-import { useNavigation } from "@react-navigation/native";
-
-type MovieCardTypeNavigationProp = StackNavigationProp<
+import {
   RootStackParamList,
-  "details"
->;
+  RootTabParamsLits,
+} from "../Navigations/NavigationType";
+import { useNavigation } from "@react-navigation/native";
+import { baseImagePath } from "src/util/util";
+import { FlatList, Image } from "react-native";
+import { Data, Genres, Movie } from "../hooks/Data";
+import { useFetchData } from "src/hooks/useFetchMovies";
+import { REACT_APP_API_BASE_URL } from "@env";
+import { useFav } from "src/context/useFav";
+import { useMutation } from "@tanstack/react-query";
+import { useInfoUser } from "src/context/usercontext/useInfoUser";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+
+type MovieCardTypeNavigationProp =
+  | StackNavigationProp<RootStackParamList>
+  | BottomTabNavigationProp<RootTabParamsLits>;
 
 type MovieCardType = {
+  Movie: Movie;
   id: string;
 };
 
-const MovieCard: FC<MovieCardType> = ({ id }) => {
-  const { navigate } = useNavigation<MovieCardTypeNavigationProp>();
+const MovieCard: FC<MovieCardType> = ({ id, Movie }) => {
+  const navigation = useNavigation<MovieCardTypeNavigationProp>();
+  const [fav, setFav] = useState(false);
+  const [genersNames, setGenersNames] = useState<string[]>([]);
+
+  const {
+    data: genres,
+    isFetched,
+    isError,
+  } = useFetchData<Genres>(
+    `${REACT_APP_API_BASE_URL}/genre/movie/list?language=en`,
+    "genres"
+  );
+  const { handleFavorite, favorite } = useFav();
+  const { sessionId } = useInfoUser();
+  const { mutateAsync } = useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await fetch(
+          `${REACT_APP_API_BASE_URL}/account/20951589/favorite?session_id=${sessionId}`,
+          {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              "content-type": "application/json",
+              Authorization:
+                "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
+            },
+            body: JSON.stringify({
+              media_type: "movie",
+              media_id: id,
+              favorite: false,
+            }),
+          }
+        );
+        return await response.json();
+      } catch (e) {
+        throw new Error("error");
+      }
+    },
+    onSuccess: (r) => {
+      // console.log("response", r);
+      setFav((prev) => !prev);
+    },
+    onError: (e) => {
+      console.log("error", e);
+    },
+  });
 
   const handlePress = (id: string) => {
-    navigate("details", { id });
+    const nav = navigation as StackNavigationProp<RootStackParamList>;
+    nav.navigate("details", { id });
   };
+  const getGenersNames = () => {
+    let arr = [];
+    const movieGeneresIds = Movie.genre_ids;
+    const allGeners = genres!.genres;
+
+    for (let i = 0; i < movieGeneresIds.length; i++) {
+      for (let j = 0; j < allGeners.length; j++) {
+        const genre = allGeners[j];
+
+        if (genre.id == movieGeneresIds[i]) {
+          arr.push(genre.name);
+        }
+      }
+    }
+    return arr;
+  };
+  useEffect(() => {
+    if (Movie && genres) setGenersNames(() => getGenersNames());
+  }, [genres, Movie]);
+
+  const addNewMovieToFav = () => {
+    if (!sessionId || sessionId?.length === 0) {
+      const nav = navigation as BottomTabNavigationProp<RootTabParamsLits>;
+      nav.navigate("profile");
+    } else {
+      mutateAsync();
+    }
+  };
+
   return (
     <PressableStyeld
-      className=" flex-1 mb-[15px] border-solid border-black rounded-2xl border-[1px]"
+      className=" flex-1 mb-[15px] border-solid border-black rounded-2xl border-[1px] overflow-hidden"
       onPress={() => handlePress(id)}
+      style={{
+        position: "relative",
+      }}
     >
-      <StyledView className="w-full h-[200px] bg-[black]" />
+      <Image
+        source={{ uri: baseImagePath("w780", Movie.poster_path) }}
+        style={{ width: 300, height: 300 }}
+      />
+      <Ionicons
+        name={fav || favorite.has(id) ? "heart" : "heart-outline"}
+        size={24}
+        color={"red"}
+        style={{
+          left: "85%",
+          top: 20,
+          position: "absolute",
+        }}
+        onPress={addNewMovieToFav}
+      />
       <StyledView className=" p-3 gap-y-2">
-        <StyeldText className="text-[14px] font-bold">
-          Avengers - Infinity War
-        </StyeldText>
+        <StyeldText className="text-[14px] font-bold">{Movie.title}</StyeldText>
         <StyledView className="flex-row items-center gap-x-1">
           <Ionicons name="calendar" size={14} color={"black"} />
           <StyeldText className="text-[12px] text-gray-500">
-            20.12.2022
+            {Movie.release_date}
           </StyeldText>
         </StyledView>
         <StyledView className=" gap-x-1 flex-row">
-          <StyledView className="flex-row items-center gap-x-1">
+          <StyledView className="flex-row items-start gap-x-1">
             <Ionicons name="videocam" size={16} color={"black"} />
-            <StyeldText className="text-[14px] text-gray-500">
-              Adventure, Sci-fi
-            </StyeldText>
+            {genersNames.length > 0 && (
+              <FlatList
+                data={genersNames}
+                renderItem={({ item, index }) => (
+                  <StyeldText className="text-[14px] text-gray-500">
+                    {item}
+                    {index < genersNames.length - 1 ? ", " : "."}
+                  </StyeldText>
+                )}
+                keyExtractor={(item) => item}
+                scrollEnabled={false}
+                numColumns={4}
+              />
+            )}
           </StyledView>
         </StyledView>
       </StyledView>

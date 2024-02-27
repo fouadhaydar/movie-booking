@@ -5,11 +5,12 @@ export type RootStackParamList = {
   "Payment History": undefined;
   details: { id: string };
   modal: undefined;
+  buyTickets: { id: string };
 };
 
 export type RootTabParamsLits = {
   home: undefined;
-  tickets: undefined;
-  movies: undefined;
+  movies: { comingSoon: boolean } | undefined;
   profile: undefined;
+  favorite: undefined;
 };

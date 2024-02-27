@@ -33,7 +33,7 @@ const SignUp: FC<SignUpType> = ({ navigation }) => {
 
   return (
     <View>
-      <Ionicons
+      {/* <Ionicons
         name="arrow-back"
         size={24}
         color="black"
@@ -45,7 +45,7 @@ const SignUp: FC<SignUpType> = ({ navigation }) => {
         onPress={() => {
           navigation.navigate("Main");
         }}
-      />
+      /> */}
       <Formik
         initialValues={initialValues}
         onSubmit={(values, actions) => {

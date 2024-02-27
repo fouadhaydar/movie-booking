@@ -4,6 +4,8 @@ import { PressableStyeld, StyeldText, StyledView } from "../StyledComponent";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../Navigations/NavigationType";
 import { useNavigation } from "@react-navigation/native";
+import { Movie } from "../hooks/Data";
+import { Image } from "react-native";
 
 type NowPlayingCardNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -11,11 +13,15 @@ type NowPlayingCardNavigationProp = StackNavigationProp<
 >;
 
 type NowPlayingType = {
-  id: string;
+  Movie: Movie;
   closeModal?: () => void;
 };
-const NowPlayingCard: FC<NowPlayingType> = ({ id, closeModal }) => {
+const NowPlayingCard: FC<NowPlayingType> = ({ Movie, closeModal }) => {
   const { navigate } = useNavigation<NowPlayingCardNavigationProp>();
+
+  const baseImagePath = (size: string, path: string) => {
+    return `https://image.tmdb.org/t/p/${size}${path}`;
+  };
 
   const handlePress = (id: string) => {
     navigate("details", { id });
@@ -26,26 +32,26 @@ const NowPlayingCard: FC<NowPlayingType> = ({ id, closeModal }) => {
 
   return (
     <PressableStyeld
-      className="min-w-[300px] border-solid border-black rounded-2xl border-[1px]"
-      onPress={() => handlePress(id)}
+      className="max-w-[400px] border-solid border-black rounded-2xl border-[1px]"
+      onPress={() => handlePress(Movie.id.toString())}
+      style={{
+        overflow: "hidden",
+      }}
     >
-      <StyledView className="w-full h-[350px] bg-[black]" />
-      <StyledView className=" p-3 gap-y-2">
-        <StyeldText className="text-xl font-bold text-center">
-          Avengers - Infinity War
+      <Image
+        source={{ uri: baseImagePath("w780", Movie.poster_path) }}
+        style={{ width: 350, height: 350 }}
+      />
+      <StyledView className="p-3 gap-y-2">
+        <StyeldText className="text-xl font-bold">{Movie.title}</StyeldText>
+        <StyeldText className="text-[14px] text-gray-500">
+          {/* 2h29m • Action, adventure, sci-fi */}
+          Release Date: {Movie.release_date}
         </StyeldText>
-        <StyeldText className="text-[14px] text-center text-gray-500">
-          2h29m • Action, adventure, sci-fi
+        <StyeldText>Rating: {Movie.vote_average} / 10</StyeldText>
+        <StyeldText className="text-[14px] text-gray-500">
+          Voter Numbers:{Movie.vote_count}
         </StyeldText>
-        <StyledView className=" justify-center gap-x-1 flex-row">
-          <StyeldText>
-            4.8
-            <StyeldText className="text-[14px] text-center text-gray-500">
-              (126)
-            </StyeldText>
-          </StyeldText>
-          <Ionicons name="star" size={16} color={"black"} />
-        </StyledView>
       </StyledView>
     </PressableStyeld>
   );

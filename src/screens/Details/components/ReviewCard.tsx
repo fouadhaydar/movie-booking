@@ -10,9 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 type ReviewCardType = {
   title: string;
   time: string;
-  date: Date;
-  review: number;
-  trailerUrl: string;
+  date: string;
+  review: number | string;
+  trailerUrl: string | boolean;
 };
 
 const ReviewCard: FC<ReviewCardType> = () => {

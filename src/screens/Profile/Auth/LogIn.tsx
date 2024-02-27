@@ -27,7 +27,7 @@ export const LogIn: FC<LogInUpType> = ({ navigation }) => {
   }, []);
   return (
     <View>
-      <Ionicons
+      {/* <Ionicons
         name="arrow-back"
         size={24}
         color="black"
@@ -39,7 +39,7 @@ export const LogIn: FC<LogInUpType> = ({ navigation }) => {
         onPress={() => {
           navigation.navigate("Main");
         }}
-      />
+      /> */}
       <Formik
         initialValues={initialValues}
         onSubmit={(values, actions) => {

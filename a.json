@@ -1,0 +1,18 @@
+{
+  "username": "ali",
+  "password": "test123",
+  "request_token": "a72d571b839eae10a162092aee8071dfcc43dfb4",
+  "k": {
+    "success": true,
+    "session_id": "1cf22b000faa8c0e31d803ac937695d7ff0a6b95",
+    "session_id2": "928433bc46cbd239f6ac337a4045e9898a252922"
+  },
+  "a": { "media_type": "movie", "media_id": 550, "favorite": true },
+
+  "res": {
+    "request_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyZWRpcmVjdF90byI6bnVsbCwiZXhwIjoxNzA4ODU0MTMyLCJuYmYiOjE3MDg4NTMyMzIsImF1ZCI6IjllM2U2MTQ5NzAzMTZjNzc5NzRhM2YwNWZhZGY1NWU3IiwianRpIjo2NzQzMDQyLCJzY29wZXMiOlsicGVuZGluZ19yZXF1ZXN0X3Rva2VuIl0sInZlcnNpb24iOjF9.IpdKa-DPejY9r1i7NEef8qRJ54O12-dN-KQlP8DMDLI",
+    "status_code": 1,
+    "status_message": "Success.",
+    "success": true
+  }
+}

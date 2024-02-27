@@ -12,6 +12,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import LogIn from "../screens/Profile/Auth/LogIn";
 import Welcome from "../screens/Welcome.tsx";
 import Details from "../screens/Details";
+import BuyTickets from "src/screens/BuyTickets";
+import { MaterialIcons } from "@expo/vector-icons";
+import WatchLater from "src/screens/WatchLater";
 
 const RootStack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootTabParamsLits>();
@@ -41,13 +44,21 @@ const TabNavigation = () => {
         }}
       />
       <Tab.Screen
+        name="favorite"
+        component={WatchLater}
+        options={{
+          tabBarIcon: () => <MaterialIcons name="watch-later" size={24} />,
+          title: "Favorite",
+        }}
+      />
+      {/* <Tab.Screen
         name="tickets"
         component={Tickets}
         options={{
           tabBarIcon: () => <Ionicons name="ticket" size={24} color="black" />,
           title: "Tickets",
         }}
-      />
+      /> */}
       <Tab.Screen
         name="movies"
         component={Movies}
@@ -86,7 +97,8 @@ const RootStackNavigator = () => {
             component={SignUp}
             options={{
               headerTitle: "Sign Up",
-              headerShown: false,
+              headerShown: true,
+              headerBackTitleVisible: false,
             }}
           />
           <RootStack.Screen
@@ -94,21 +106,35 @@ const RootStackNavigator = () => {
             component={LogIn}
             options={{
               headerTitle: "Log In",
-              headerShown: false,
+              headerShown: true,
+              headerBackTitleVisible: false,
             }}
           />
           <RootStack.Screen
             name="details"
             component={Details}
             options={{
-              headerShown: false,
+              headerTitle: "Details",
+              headerShown: true,
+              headerBackTitleVisible: false,
             }}
           />
           <RootStack.Screen
             name="Payment History"
             component={History}
             options={{
+              headerTitle: "Payment History",
               headerShown: true,
+              headerBackTitleVisible: false,
+            }}
+          />
+          <RootStack.Screen
+            name="buyTickets"
+            component={BuyTickets}
+            options={{
+              headerTitle: "Select Seat",
+              headerShown: true,
+              headerBackTitleVisible: false,
             }}
           />
         </RootStack.Group>
