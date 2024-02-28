@@ -2,8 +2,8 @@ import { SafeAreaView, StyleSheet, FlatList, Platform } from "react-native";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import MovieCard from "../../components/MovieCard";
 import { PressableStyeld, StyeldText, StyledView } from "../../StyledComponent";
-import { useFetchData } from "src/hooks/useFetchMovies";
-import { REACT_APP_API_BASE_URL } from "@env";
+import { fetcheOptions, useFetchData } from "src/hooks/useFetchMovies";
+import { REACT_APP_API_BASE_URL, REACT_APP_BARER_API } from "@env";
 import { Data, Movie } from "src/hooks/Data";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import CustomeBtn from "src/components/CustomeBtn";
@@ -16,7 +16,6 @@ type MoviesType = {
   route: MoviesScreenRoutProp;
 };
 const Movies: FC<MoviesType> = ({ route }) => {
-  // console.log("route => ", route?.params?.comingSoon);
   const [checked, setChecked] = useState<"now playing" | "comming soon">(
     route?.params?.comingSoon ? "comming soon" : "now playing"
   );
@@ -44,14 +43,7 @@ const Movies: FC<MoviesType> = ({ route }) => {
         checked === "comming soon"
           ? `${urlUpoming}${pageParam}`
           : `${urlNowplaying}${pageParam}`,
-        {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-          },
-        }
+        fetcheOptions
       );
       const data: Data = await res.json();
       return {
@@ -99,13 +91,10 @@ const Movies: FC<MoviesType> = ({ route }) => {
   //   checked
   // );
   const handlePress = () => {
-    // TODO: fetch corresponding data
-    // refetch();
     setChecked((prev) =>
       prev === "now playing" ? "comming soon" : "now playing"
     );
     refetch();
-    console.log("reftech");
   };
 
   if (status === "error") {

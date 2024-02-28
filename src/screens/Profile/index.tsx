@@ -15,6 +15,8 @@ import { RootStackParamList } from "../../Navigations/NavigationType";
 import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useInfoUser } from "src/context/usercontext/useInfoUser";
+import { REACT_APP_API_BASE_URL, REACT_APP_MY_ACCOUNT_NUMBER } from "@env";
+import { fetcheOptions, postOptions } from "src/hooks/useFetchMovies";
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 type ProfileType = {
@@ -22,20 +24,11 @@ type ProfileType = {
 };
 
 const Profile: FC<ProfileType> = ({ navigation }) => {
-  interface OptionType {
-    headers: {
-      accept: string;
-      "content-type"?: string;
-      Authorization: string;
-    };
-    method: "GET" | "POST";
-    body?: string;
-  }
   const { setUserInfo, userName, sessionId } = useInfoUser();
 
   const generateRequestTokenOrSessionId = async (
     url: string,
-    options: OptionType,
+    options: typeof fetcheOptions,
     token: boolean
   ) => {
     try {
@@ -59,7 +52,7 @@ const Profile: FC<ProfileType> = ({ navigation }) => {
       console.log(err);
     }
   };
-  const getUserInfo = async (url: string, options: OptionType) => {
+  const getUserInfo = async (url: string, options: typeof fetcheOptions) => {
     const res = await fetch(url, options);
     const userData = await res.json();
     return userData;
@@ -87,30 +80,24 @@ const Profile: FC<ProfileType> = ({ navigation }) => {
   };
 
   const auth = async () => {
-    const url = "https://api.themoviedb.org/3/authentication/token/new";
-    const url2 = "https://api.themoviedb.org/3/authentication/session/new";
-    const options: OptionType = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-      },
+    const url = `${REACT_APP_API_BASE_URL}/authentication/token/new`;
+    const url2 = `${REACT_APP_API_BASE_URL}/authentication/session/new`;
+
+    const postOpions: typeof fetcheOptions = {
+      ...postOptions,
     };
 
     try {
-      const token = await generateRequestTokenOrSessionId(url, options, true);
+      const token = await generateRequestTokenOrSessionId(
+        url,
+        fetcheOptions,
+        true
+      );
       await openWebTab(`https://www.themoviedb.org/authenticate/${token}`);
       const sessionId = await generateRequestTokenOrSessionId(
         url2,
         {
-          headers: {
-            accept: "application/json",
-            "content-type": "application/json",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-          },
-          method: "POST",
+          ...postOpions,
           body: JSON.stringify({
             request_token: token,
           }),
@@ -118,7 +105,6 @@ const Profile: FC<ProfileType> = ({ navigation }) => {
         false
       );
       await storeSession(sessionId);
-      // }
     } catch (err) {
       console.log(err);
     }
@@ -137,15 +123,8 @@ const Profile: FC<ProfileType> = ({ navigation }) => {
     if (!sessionId) autoAuth();
     else {
       getUserInfo(
-        `https://api.themoviedb.org/3/account/20951589?session_id=${sessionId}`,
-        {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-          },
-        }
+        `${REACT_APP_API_BASE_URL}/account/${REACT_APP_MY_ACCOUNT_NUMBER}?session_id=${sessionId}`,
+        fetcheOptions
       ).then((res) => setUserInfo(sessionId, res["username"]));
     }
   }, [sessionId]);
@@ -210,18 +189,6 @@ const Profile: FC<ProfileType> = ({ navigation }) => {
 };
 
 export default Profile;
-// {
-//   headers: {
-//     accept: "application/json",
-//     "content-type": "application/json",
-//     Authorization:
-//       "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-//   },
-//   method: "POST",
-//   body: JSON.stringify({
-//     request_token: data["request_token"],
-//   }),
-// }
 
 // const auth = async (request_token: string) => {
 //   const url = `https://www.themoviedb.org/authenticate/${request_token}?redirect_to=com.moovie`;

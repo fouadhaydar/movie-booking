@@ -11,11 +11,12 @@ import { baseImagePath } from "src/util/util";
 import { FlatList, Image } from "react-native";
 import { Data, Genres, Movie } from "../hooks/Data";
 import { useFetchData } from "src/hooks/useFetchMovies";
-import { REACT_APP_API_BASE_URL } from "@env";
+import { REACT_APP_API_BASE_URL, REACT_APP_MY_ACCOUNT_NUMBER } from "@env";
 import { useFav } from "src/context/useFav";
 import { useMutation } from "@tanstack/react-query";
 import { useInfoUser } from "src/context/usercontext/useInfoUser";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { postOptions } from "../hooks/useFetchMovies";
 
 type MovieCardTypeNavigationProp =
   | StackNavigationProp<RootStackParamList>
@@ -45,15 +46,9 @@ const MovieCard: FC<MovieCardType> = ({ id, Movie }) => {
     mutationFn: async () => {
       try {
         const response = await fetch(
-          `${REACT_APP_API_BASE_URL}/account/20951589/favorite?session_id=${sessionId}`,
+          `${REACT_APP_API_BASE_URL}/account/${REACT_APP_MY_ACCOUNT_NUMBER}/favorite?session_id=${sessionId}`,
           {
-            method: "POST",
-            headers: {
-              accept: "application/json",
-              "content-type": "application/json",
-              Authorization:
-                "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
-            },
+            ...postOptions,
             body: JSON.stringify({
               media_type: "movie",
               media_id: id,

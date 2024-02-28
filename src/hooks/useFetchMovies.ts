@@ -1,11 +1,30 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { REACT_APP_BARER_API } from "@env";
 
-const options = {
+type OptionType = {
+  headers: {
+    accept: string;
+    "content-type"?: string;
+    Authorization: string;
+  };
+  method: "GET" | "POST";
+  body?: string;
+};
+
+export const fetcheOptions: OptionType = {
   method: "GET",
   headers: {
     accept: "application/json",
-    Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZTNlNjE0OTcwMzE2Yzc3OTc0YTNmMDVmYWRmNTVlNyIsInN1YiI6IjY1YjYzNzcxNGYzM2FkMDEzMTBjN2JlMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.O93d7D1kkCB3ZqvNF20MKnJsPbs7wylCH6CrBJslYCc",
+    Authorization: `Bearer ${REACT_APP_BARER_API}`,
+  },
+};
+
+export const postOptions: OptionType = {
+  method: "POST",
+  headers: {
+    accept: "application/json",
+    "content-type": "application/json",
+    Authorization: `Bearer ${REACT_APP_BARER_API}`,
   },
 };
 
@@ -16,7 +35,7 @@ export function useFetchData<T>(
 ) {
   const getData = async () => {
     try {
-      const response = await fetch(url, options);
+      const response = await fetch(url, fetcheOptions);
       return await response.json();
     } catch (err) {
       console.log(err);
@@ -25,7 +44,6 @@ export function useFetchData<T>(
   const { data, isError, isFetched, isFetching, refetch } = useQuery<T>({
     queryKey: [queryKey],
     queryFn: getData,
-    refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     enabled: enabled ?? true,
   });
